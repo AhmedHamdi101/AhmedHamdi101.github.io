@@ -5,7 +5,7 @@ export const site = {
   title: "PhD Student in Computer Science",
   university: "University of California, Riverside",
   location: "Riverside, California",
-  url: "https://AhmedHamdi101.github.io",
+  url: "https://abdelmaguid.me",
   description: "Computer Science PhD student researching database systems, text-to-SQL, information retrieval, and large language models.",
   bio: "I am a Computer Science PhD student at the University of California, Riverside. My research interests include database systems, text-to-SQL, information retrieval, and large language models.",
   researchInterests: ["Text-to-SQL", "Database Systems", "Information Retrieval", "Large Language Models", "Retrieval-Augmented Systems"],
