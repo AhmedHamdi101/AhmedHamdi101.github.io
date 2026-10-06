@@ -1,0 +1,13 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const certifications = await getCollection("certifications");
+---
+
+<BaseLayout title="Certifications" description="Professional certifications earned by Ahmed Abdelmaguid.">
+  <header class="page-header"><p class="eyebrow">Professional development</p><h1>Certifications</h1><p class="lead">Credentials and specialized training.</p></header>
+  <section class="certification-list">
+    {certifications.map(item => <article class="timeline-item"><h2>{item.data.title}</h2><p>{item.data.issuer} · <span class="status">Issued {item.data.issued}</span></p>{item.data.credentialId && <p class="muted">Credential ID: {item.data.credentialId}</p>}{item.data.tags.length > 0 && <p class="tags">{item.data.tags.map(tag => <span>{tag}</span>)}</p>}{item.data.credential && <p><a class="button" href={item.data.credential} rel="noopener noreferrer">View credential</a></p>}</article>)}
+  </section>
+</BaseLayout>

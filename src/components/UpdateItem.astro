@@ -1,0 +1,18 @@
+---
+import { formatDate } from "../utils/dates";
+interface Props { update: any }
+const { update: u } = Astro.props; const href = u.data.externalLink ?? u.data.internalLink;
+---
+<article class="update"><time datetime={u.data.date.toISOString()}>{formatDate(u.data.date)}</time><div><p class="category">{u.data.category}</p><h3>{href ? <a href={href}>{u.data.title}</a> : u.data.title}</h3>{u.data.description && <p>{u.data.description}</p>}{u.data.image && <img class="update-image" src={u.data.image} alt="" loading="lazy" />}</div></article>
+
+<style>
+  .update-image {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-medium);
+    display: block;
+    height: auto;
+    margin-top: 0.9rem;
+    max-width: 100%;
+    width: min(100%, 460px);
+  }
+</style>

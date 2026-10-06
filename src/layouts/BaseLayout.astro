@@ -1,0 +1,37 @@
+---
+import "../styles/global.css";
+import { site, navigation } from "../config/site";
+interface Props { title?: string; description?: string }
+const { title, description = site.description } = Astro.props;
+const pageTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.title}`;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} /><link rel="canonical" href={canonical} />
+    <meta property="og:title" content={pageTitle} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} />
+    <title>{pageTitle}</title>
+    <style is:global>
+      main > section { border-bottom: 0; padding-block: 1.7rem; }
+      main > section + section { margin-top: 0.8rem; padding-top: 2.2rem; position: relative; }
+      main > section + section::before { background: var(--color-accent); border-radius: 99px; content: ""; height: 3px; left: 0; position: absolute; top: 0; width: 2.75rem; }
+      .section-heading { border-left: 3px solid var(--color-accent); padding-left: 0.75rem; }
+    </style>
+    <script is:inline>
+      const saved = localStorage.getItem('theme'); const dark = saved === 'dark' || (!saved && matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+    </script>
+  </head>
+  <body>
+    <a class="skip-link" href="#content">Skip to content</a>
+    <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/">{site.name}</a><button class="menu-button" aria-expanded="false" aria-controls="navigation">Menu</button><nav id="navigation" aria-label="Main navigation"><ul>{navigation.map((item) => <li><a href={item.href} aria-current={Astro.url.pathname === item.href ? "page" : undefined}>{item.label}</a></li>)}<li><button class="theme-button" type="button" aria-label="Toggle color theme">Theme</button></li></ul></nav></div></header>
+    <main id="content" class="container"><slot /></main>
+    <footer class="site-footer"><div class="container"><span>© {new Date().getFullYear()} {site.name}</span><span>{site.location}</span></div></footer>
+    <script>
+      const menu = document.querySelector<HTMLButtonElement>('.menu-button'); const nav = document.querySelector<HTMLElement>('#navigation');
+      menu?.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') === 'true'; menu.setAttribute('aria-expanded', String(!open)); nav?.classList.toggle('open', !open); });
+      document.querySelector<HTMLButtonElement>('.theme-button')?.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('theme', next); });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+---
+import { getCollection } from "astro:content"; import BaseLayout from "../../layouts/BaseLayout.astro"; import { formatDate } from "../../utils/dates";
+const notes=(await getCollection("notes",({data})=>!data.draft)).sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf());
+---
+<BaseLayout title="Notes"><header class="page-header"><p class="eyebrow">Writing</p><h1>Notes</h1><p class="lead">Longer-form technical, research, and personal writing.</p></header>{notes.length ? <div class="note-grid">{notes.map(note=><article class="note-card"><p class="category">{note.data.category} · {formatDate(note.data.date)}</p><h2><a href={`/notes/${note.id}`}>{note.data.title}</a></h2><p>{note.data.description}</p></article>)}</div> : <p class="empty">No published notes yet.</p>}</BaseLayout>

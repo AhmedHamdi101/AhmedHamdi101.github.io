@@ -1,0 +1,16 @@
+{
+  "name": "ahmedhamdi101.github.io",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20.19.0 <25" },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "format": "prettier --write ."
+  },
+  "dependencies": { "@astrojs/sitemap": "^3.4.1", "astro": "^5.16.8" },
+  "devDependencies": { "@astrojs/check": "^0.9.4", "@types/node": "^24.0.0", "prettier": "^3.5.3", "typescript": "^5.7.3" }
+}

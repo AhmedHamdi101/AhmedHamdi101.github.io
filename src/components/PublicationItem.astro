@@ -1,0 +1,6 @@
+---
+import { site } from "../config/site";
+interface Props { publication: any }
+const { publication: p } = Astro.props;
+---
+<article class="publication"><div class="publication-year">{p.data.year}</div><div><h3>{p.data.title}</h3><p class="authors">{p.data.authors.map((author: string, index: number) => <>{index > 0 && ", "}{author === site.name ? <strong>{author}</strong> : author}</>)}</p>{p.data.venue && <p class="muted">{p.data.venue}</p>}{p.data.status && <p class="status">{p.data.status}</p>}<p>{p.data.summary}</p><div class="links">{p.data.paper && <a href={p.data.paper} rel="noopener noreferrer">Paper</a>}{p.data.code && <a href={p.data.code} rel="noopener noreferrer">Code</a>}{p.data.project && <a href={p.data.project}>Project</a>}{p.data.doi && p.data.doi !== p.data.paper && <a href={p.data.doi}>DOI</a>}</div></div></article>

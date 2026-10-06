@@ -1,0 +1,5 @@
+---
+import { getCollection } from "astro:content"; import BaseLayout from "../../layouts/BaseLayout.astro"; import ProjectCard from "../../components/ProjectCard.astro";
+const projects = await getCollection("projects");
+---
+<BaseLayout title="Research" description="Research projects by Ahmed Abdelmaguid."><header class="page-header"><p class="eyebrow">Research</p><h1>Research</h1><p class="lead">I study retrieval and database systems for more capable text-to-SQL and language-based data access.</p></header><div class="project-grid">{projects.map(project => <ProjectCard project={project} />)}</div></BaseLayout>

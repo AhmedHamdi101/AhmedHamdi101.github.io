@@ -1,0 +1,6 @@
+---
+interface Props { project: any }
+const { project: p } = Astro.props;
+const slug = p.id.replace(/\.[^/.]+$/, "");
+---
+<article class="project-card"><p class="status">{p.data.status}</p><h3><a href={`/research/${slug}`}>{p.data.title}</a></h3><p>{p.data.summary}</p><p class="tags">{p.data.tags.map((tag: string) => <span>{tag}</span>)}</p><div class="links"><a href={`/research/${slug}`}>Project</a>{p.data.paper && <a href={p.data.paper}>Paper</a>}{p.data.code && <a href={p.data.code}>Code</a>}</div></article>

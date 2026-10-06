@@ -1,0 +1,26 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const experience = (await getCollection("experience")).sort((a, b) => b.data.startDate.localeCompare(a.data.startDate));
+const companies = Array.from(experience.reduce((groups, item) => {
+  const roles = groups.get(item.data.organization) ?? [];
+  roles.push(item);
+  groups.set(item.data.organization, roles);
+  return groups;
+}, new Map<string, typeof experience>()).entries());
+---
+
+<BaseLayout title="Experience" description="Professional and academic experience of Ahmed Abdelmaguid.">
+  <header class="page-header"><p class="eyebrow">Professional background</p><h1>Experience</h1><p class="lead">Research, engineering, and teaching experience.</p></header>
+  <section>
+    {companies.map(([organization, roles]) => <article class="experience-company"><header><h2>{organization}</h2>{roles[0].data.location && <p class="muted">{roles[0].data.location}</p>}</header><div class="experience-roles">{roles.map(item => <article class="timeline-item"><h3>{item.data.role}</h3><p><span class="status">{item.data.startDate}{item.data.endDate ? ` – ${item.data.endDate}` : " – Present"}</span></p>{item.data.description && <p>{item.data.description}</p>}{item.data.tags.length > 0 && <p class="tags">{item.data.tags.map(tag => <span>{tag}</span>)}</p>}</article>)}</div></article>)}
+  </section>
+</BaseLayout>
+
+<style>
+  .experience-company + .experience-company { margin-top: 2.5rem; }
+  .experience-company > header { margin-bottom: 1rem; }
+  .experience-company h2 { margin-bottom: 0.2rem; }
+  .experience-company header p { margin: 0; }
+</style>

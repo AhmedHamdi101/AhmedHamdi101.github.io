@@ -1,0 +1,5 @@
+---
+import { existsSync } from "node:fs"; import BaseLayout from "../layouts/BaseLayout.astro"; import { site } from "../config/site";
+const cvExists = existsSync(new URL("../../public/cv/Ahmed_Abdelmaguid_CV.pdf", import.meta.url));
+---
+<BaseLayout title="CV"><header class="page-header"><p class="eyebrow">Curriculum vitae</p><h1>CV</h1><p class="lead">A current CV will be available here.</p></header>{cvExists ? <p><a class="button" href={site.cvPath}>Download CV (PDF)</a></p> : <div class="empty"><p>The CV PDF has not been added yet.</p><p>Place it at <code>public/cv/Ahmed_Abdelmaguid_CV.pdf</code> to enable the download.</p></div>}</BaseLayout>
