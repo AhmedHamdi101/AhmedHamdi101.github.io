@@ -5,33 +5,43 @@ interface Props { title?: string; description?: string }
 const { title, description = site.description } = Astro.props;
 const pageTitle = title ? `${title} | ${site.name}` : `${site.name} | ${site.title}`;
 const canonical = new URL(Astro.url.pathname, site.url).href;
+const primaryNavigation = navigation.filter((item) => !("secondary" in item && item.secondary));
+const secondaryNavigation = navigation.filter((item) => "secondary" in item && item.secondary);
 ---
 <!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} /><link rel="canonical" href={canonical} />
+    <meta name="description" content={description} /><link rel="canonical" href={canonical} /><link rel="icon" href="/favicon.png" type="image/png" />
     <meta property="og:title" content={pageTitle} /><meta property="og:description" content={description} /><meta property="og:type" content="website" /><meta property="og:url" content={canonical} />
     <title>{pageTitle}</title>
     <style is:global>
-      main > section { border-bottom: 0; padding-block: 1.7rem; }
-      main > section + section { margin-top: 0.8rem; padding-top: 2.2rem; position: relative; }
-      main > section + section::before { background: var(--color-accent); border-radius: 99px; content: ""; height: 3px; left: 0; position: absolute; top: 0; width: 2.75rem; }
-      .section-heading { border-left: 3px solid var(--color-accent); padding-left: 0.75rem; }
+      .site-header { background: #EAF9EC; }
+      .brand img { display: block; height: 2.45rem; object-fit: contain; width: 2.45rem; }
+      .hero { grid-template-columns: 160px 1fr; }
+      .profile-placeholder, .profile-image { height: 160px; width: 160px; }
+      main#content { border-inline: 1px solid var(--color-border-subtle); }
+      main > section { border-bottom: 0; padding-block: 1.9rem; }
+      main > section + section { margin-top: 0.7rem; padding-top: 2.05rem; position: relative; }
+      main > section + section::before { background: var(--color-accent); border-radius: 99px; content: ""; height: 2px; left: 0; position: absolute; top: 0; width: 2.25rem; }
+      .section-heading { border-left: 2px solid var(--color-accent); padding-left: 0.65rem; }
+      .more-menu { position: relative; }
+      .more-menu summary { cursor: pointer; list-style: none; padding-block: 0.25rem; }
+      .more-menu summary::-webkit-details-marker { display: none; }
+      .more-menu > ul { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-small); box-shadow: 0 8px 24px color-mix(in srgb, var(--color-text) 10%, transparent); display: none; flex-direction: column; gap: 0.2rem; margin-top: 0.5rem; min-width: 9rem; padding: 0.45rem; position: absolute; right: 0; }
+      .more-menu[open] > ul { display: flex; }
+      .more-menu > ul a { display: block; padding: 0.35rem 0.45rem; }
+      @media (max-width: 700px) { main#content { border-inline: 0; }.hero { grid-template-columns: 1fr; }.profile-placeholder, .profile-image { height: 108px; width: 108px; }.more-menu { width: 100%; }.more-menu > ul { box-shadow: none; margin: 0.35rem 0 0; position: static; width: 100%; } }
     </style>
-    <script is:inline>
-      const saved = localStorage.getItem('theme'); const dark = saved === 'dark' || (!saved && matchMedia('(prefers-color-scheme: dark)').matches); document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-    </script>
   </head>
   <body>
     <a class="skip-link" href="#content">Skip to content</a>
-    <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/">{site.name}</a><button class="menu-button" aria-expanded="false" aria-controls="navigation">Menu</button><nav id="navigation" aria-label="Main navigation"><ul>{navigation.map((item) => <li><a href={item.href} aria-current={Astro.url.pathname === item.href ? "page" : undefined}>{item.label}</a></li>)}<li><button class="theme-button" type="button" aria-label="Toggle color theme">Theme</button></li></ul></nav></div></header>
+    <header class="site-header"><div class="container nav-wrap"><a class="brand" href="/" aria-label={`${site.name} home`}><img src="/images/home-monogram.png" alt="" /></a><button class="menu-button" aria-expanded="false" aria-controls="navigation">Menu</button><nav id="navigation" aria-label="Main navigation"><ul>{primaryNavigation.map((item) => <li><a href={item.href} aria-current={Astro.url.pathname === item.href ? "page" : undefined}>{item.label}</a></li>)}{secondaryNavigation.length > 0 && <li><details class="more-menu"><summary>More</summary><ul>{secondaryNavigation.map((item) => <li><a href={item.href} aria-current={Astro.url.pathname === item.href ? "page" : undefined}>{item.label}</a></li>)}</ul></details></li>}</ul></nav></div></header>
     <main id="content" class="container"><slot /></main>
     <footer class="site-footer"><div class="container"><span>© {new Date().getFullYear()} {site.name}</span><span>{site.location}</span></div></footer>
     <script>
       const menu = document.querySelector<HTMLButtonElement>('.menu-button'); const nav = document.querySelector<HTMLElement>('#navigation');
       menu?.addEventListener('click', () => { const open = menu.getAttribute('aria-expanded') === 'true'; menu.setAttribute('aria-expanded', String(!open)); nav?.classList.toggle('open', !open); });
-      document.querySelector<HTMLButtonElement>('.theme-button')?.addEventListener('click', () => { const next = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; document.documentElement.dataset.theme = next; localStorage.setItem('theme', next); });
     </script>
   </body>
 </html>

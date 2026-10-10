@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const teaching = await getCollection("teaching");
+const institutionOrder = ["University of California, Riverside", "Alexandria University"];
+const institutions = Array.from(teaching.reduce((groups, course) => {
+  const courses = groups.get(course.data.institution) ?? [];
+  courses.push(course);
+  groups.set(course.data.institution, courses);
+  return groups;
+}, new Map<string, typeof teaching>()).entries()).sort(([institutionA], [institutionB]) => institutionOrder.indexOf(institutionA) - institutionOrder.indexOf(institutionB));
+---
+
+<BaseLayout title="Teaching" description="Teaching experience of Ahmed Abdelmaguid.">
+  <header class="page-header"><p class="eyebrow">Academic experience</p><h1>Teaching</h1><p class="lead">Courses and teaching roles across computer science and engineering.</p><p class="teaching-summary">{teaching.length} courses · {institutions.length} institutions</p></header>
+  <section>
+    {institutions.map(([institution, courses]) => <article class="institution"><header class="institution-header"><h2>{institution}</h2><span>{courses.length} courses</span></header><div class="course-list">{courses.map(course => <article class="course">{course.data.courseName && <p class="course-code">{course.data.courseCode}</p>}<h3>{course.data.courseName ?? course.data.courseCode}</h3>{course.data.description && <p class="course-description">{course.data.description}</p>}<p class="course-role">{course.data.role}{course.data.term && ` · ${course.data.term}`}{course.data.year && ` ${course.data.year}`}</p></article>)}</div></article>)}
+  </section>
+</BaseLayout>
+
+<style>
+  .teaching-summary { color: var(--color-accent); font-size: 0.86rem; font-weight: 700; letter-spacing: 0.06em; margin: 1.1rem 0 0; text-transform: uppercase; }
+  .institution + .institution { margin-top: 3rem; }
+  .institution-header { align-items: baseline; border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; margin-bottom: 1.2rem; padding-bottom: 0.75rem; }
+  .institution-header h2 { margin: 0; }
+  .institution-header span { color: var(--color-muted); font-size: 0.9rem; }
+  .course-list { display: grid; gap: 1rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .course { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-medium); display: flex; flex-direction: column; min-height: 9.25rem; padding: 1.15rem; }
+  .course-code, .course-role { font-size: 0.76rem; font-weight: 700; letter-spacing: 0.07em; margin: 0; text-transform: uppercase; }
+  .course-code { color: var(--color-accent); }
+  .course-role { color: var(--color-muted); }
+  .course h3 { font-size: 1.05rem; margin: 0.35rem 0; }
+  .course-description { margin: 0.25rem 0; }
+  .course-role { margin-top: auto; padding-top: 0.75rem; }
+  @media (max-width: 700px) { .institution-header { align-items: flex-start; flex-direction: column; gap: 0.3rem; }.course-list { grid-template-columns: 1fr; }.course { min-height: 0; } }
+</style>

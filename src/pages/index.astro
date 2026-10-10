@@ -1,6 +1,6 @@
 ---
-import { getCollection } from "astro:content"; import profileImage from "../assets/profile.jpg"; import BaseLayout from "../layouts/BaseLayout.astro"; import SectionHeading from "../components/SectionHeading.astro"; import PublicationItem from "../components/PublicationItem.astro"; import UpdateItem from "../components/UpdateItem.astro"; import { site } from "../config/site";
-const [publications, updates, education, teaching, experience] = await Promise.all([getCollection("publications"), getCollection("updates"), getCollection("education"), getCollection("teaching"), getCollection("experience")]);
+import { getCollection } from "astro:content"; import profileImage from "../assets/profile.jpg"; import BaseLayout from "../layouts/BaseLayout.astro"; import SectionHeading from "../components/SectionHeading.astro"; import UpdateItem from "../components/UpdateItem.astro"; import { site } from "../config/site";
+const [publications, updates, education, experience] = await Promise.all([getCollection("publications"), getCollection("updates"), getCollection("education"), getCollection("experience")]);
 const newest = updates.sort((a,b)=>b.data.date.valueOf()-a.data.date.valueOf()).slice(0,3);
 const currentExperience = experience.filter(item => !item.data.endDate).sort((a, b) => b.data.startDate.localeCompare(a.data.startDate));
 const currentOrganizations = Array.from(currentExperience.reduce((groups, item) => {
@@ -9,22 +9,43 @@ const currentOrganizations = Array.from(currentExperience.reduce((groups, item) 
   groups.set(item.data.organization, roles);
   return groups;
 }, new Map<string, typeof currentExperience>()).entries());
+const solar = publications.find((publication) => publication.slug === "solar");
+const advisorName = "Prof. Amr Magdy";
+const advisorUrl = "https://www.cs.ucr.edu/~amr/";
 ---
 <BaseLayout>
-  <section class="hero"><img class="profile-image" src={profileImage.src} alt={`Portrait of ${site.name}`} /><div><p class="eyebrow">{site.title}</p><h1>{site.name}</h1><p class="alternative-name"><span>Also known as</span>{" "}{site.alternativeName}</p><p class="university">{site.university}</p><p class="lead">{site.bio}</p><div class="socials">{site.socials.email && <a href={`mailto:${site.socials.email}`}>Email</a>}{site.socials.github && <a href={site.socials.github} rel="noopener noreferrer">GitHub</a>}{site.socials.scholar && <a href={site.socials.scholar}>Google Scholar</a>}{site.socials.linkedin && <a href={site.socials.linkedin}>LinkedIn</a>}<a href="/cv">CV</a></div></div></section>
-  <section><SectionHeading title="Research interests" /><p class="tags">{site.researchInterests.map(tag => <span>{tag}</span>)}</p></section>
-  <section><SectionHeading title="Currently" /><ul class="now-list">{site.now.map(item => <li>{item}</li>)}</ul></section>
+  <section class="hero"><img class="profile-image" src={profileImage.src} alt={`Portrait of ${site.name}`} /><div><p class="eyebrow">{site.title}</p><h1 class="wordmark"><img src="/images/ahmed-abdelmaguid-wordmark.png" alt={site.name} /></h1><p class="alternative-name"><span>Also known as</span>{" "}{site.alternativeName}</p><p class="university">{site.university}</p><p class="research-statement">{site.researchStatement}</p>{site.bio.slice(0, 2).map(paragraph => <p class="bio">{paragraph.includes(advisorName) ? <>{paragraph.split(advisorName)[0]}<a href={advisorUrl} rel="noopener noreferrer">{advisorName}</a>{paragraph.split(advisorName)[1]}</> : paragraph}</p>)}<p class="bio">{site.bio[2]}</p><div class="focus-block"><p>Current focus</p><div>{site.currentFocus.map(item => <span>{item}</span>)}</div></div><div class="socials">{site.socials.email && <a href={`mailto:${site.socials.email}`}>Email</a>}{site.socials.github && <a href={site.socials.github} rel="noopener noreferrer">GitHub</a>}{site.socials.scholar && <a href={site.socials.scholar}>Google Scholar</a>}{site.socials.linkedin && <a href={site.socials.linkedin}>LinkedIn</a>}<a href="/cv">CV</a></div></div></section>
+  <section><SectionHeading title="Research interests" /><div class="research-grid">{site.researchAreas.map(area => <article><h3>{area.title}</h3><p>{area.description}</p></article>)}</div></section>
+  {solar && <section class="featured-research"><SectionHeading title="Featured research" /><article class="feature-card"><p class="eyebrow">ICDE 2026 · Database systems</p><h3>{solar.data.title}</h3><p class="muted">{solar.data.venue}</p><p>{solar.data.summary}</p><p class="key-result"><strong>Key result:</strong> Up to 3.6× faster overall join execution and 2.71× faster partitioning compared with evaluated baselines.</p><div class="links">{solar.data.paper && <a href={solar.data.paper} rel="noopener noreferrer">Read paper</a>}{solar.data.code && <a href={solar.data.code} rel="noopener noreferrer">Code</a>}</div></article></section>}
+  <section><SectionHeading title="Currently exploring" /><div class="research-grid current-research">{site.currentResearch.map(area => <article><h3>{area.title}</h3><p>{area.description}</p></article>)}</div></section>
+  <section class="beyond-research"><SectionHeading title="Beyond research" /><p>{site.beyondResearch}</p><a href="/notes">Read technical notes</a></section>
   <section><SectionHeading title="Latest updates" href="/updates" linkLabel="View all updates" />{newest.map(update => <UpdateItem update={update} />)}</section>
-  <section><SectionHeading title="Selected publications" href="/publications" />{publications.filter(p=>p.data.featured).sort((a,b)=>b.data.year-a.data.year).map(publication => <PublicationItem publication={publication} />)}</section>
   {education.length > 0 && <section><SectionHeading title="Education" />{education.map(item => <article class="timeline-item"><h3>{item.data.degree} in {item.data.field}</h3><p>{item.data.institution} · <span class="status">{item.data.status}</span>{item.data.startDate && <> · {item.data.startDate}{item.data.endDate && ` – ${item.data.endDate}`}</>}</p></article>)}</section>}
-  {currentOrganizations.length > 0 && <section><SectionHeading title="Current roles" href="/experience" linkLabel="View experience" />{currentOrganizations.map(([organization, roles]) => <article class="current-organization"><h3>{organization}</h3>{roles.map(item => <article class="timeline-item"><h4>{item.data.role}</h4><p><span class="status">{item.data.startDate} – Present</span></p></article>)}</article>)}</section>}
-  {teaching.length > 0 && <section><SectionHeading title="Teaching" /><div class="teaching-tags">{teaching.map(item => <article class="teaching-tag"><span>{item.data.courseCode}{item.data.courseName && ` — ${item.data.courseName}`}</span><small>{item.data.institution}</small></article>)}</div></section>}
+  {currentOrganizations.length > 0 && <section><SectionHeading title="Current roles" href="/experience" linkLabel="View experience" />{currentOrganizations.map(([organization, roles]) => <article class="current-organization"><h3>{organization}</h3>{roles.map(item => <article class="timeline-item"><h4>{item.data.role}</h4><p><span class="status">{item.data.startDate} – Present</span></p></article>)}</article>)}<p class="teaching-link">Teaching: CS 236, CS 279, and previous courses · <a href="/teaching">View teaching</a></p></section>}
 </BaseLayout>
 
 <style>
-  .teaching-tags { margin-top: 1rem; }
   .current-organization > h3 { margin-bottom: 1rem; }
   .current-organization .timeline-item h4 { margin: 0; }
+  .teaching-link { border-top: 1px solid var(--color-border); margin: 1.5rem 0 0; padding-top: 1rem; }
   .alternative-name { align-items: center; background: color-mix(in srgb, var(--color-accent) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-accent) 28%, transparent); border-radius: 99px; color: var(--color-accent); display: inline-flex; font-family: Georgia, "Times New Roman", serif; font-size: 0.92rem; gap: 0.45rem; margin: 0 0 0.65rem; padding: 0.18rem 0.65rem 0.22rem; }
+  .wordmark { height: 6.2rem; margin: 0.25rem 0 0.65rem; max-width: min(34rem, 100%); overflow: hidden; }
+  .wordmark img { display: block; height: auto; max-width: 100%; transform: translateY(-1.75rem); width: 100%; }
   .alternative-name span { font: inherit; }
+  .research-statement { color: var(--color-accent); font-size: clamp(1.2rem, 2.3vw, 1.45rem); font-weight: 650; line-height: 1.45; margin: 1rem 0; max-width: 42rem; }
+  .bio { margin: 0.8rem 0; max-width: 68ch; }
+  .focus-block { border-left: 2px solid var(--color-accent); margin: 1.2rem 0; padding-left: 0.8rem; }
+  .focus-block > p { color: var(--color-muted); font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em; margin: 0 0 0.35rem; text-transform: uppercase; }
+  .focus-block > div { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+  .focus-block span { border: 1px solid color-mix(in srgb, var(--color-accent) 28%, var(--color-border)); border-radius: 99px; font-size: 0.84rem; padding: 0.12rem 0.5rem; }
+  .research-grid { display: grid; gap: 1.1rem 1.5rem; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 1.25rem; }
+  .research-grid article { border-top: 1px solid var(--color-border); padding-top: 0.9rem; }
+  .research-grid h3 { margin: 0; }
+  .research-grid p { margin: 0.4rem 0 0; }
+  .feature-card { background: var(--color-feature-background); border: 1px solid color-mix(in srgb, var(--color-accent) 20%, var(--color-border)); border-radius: var(--radius-medium); margin-top: 1.25rem; max-width: 760px; padding: clamp(1.25rem, 3vw, 1.75rem); }
+  .feature-card h3 { font-size: clamp(1.2rem, 2.5vw, 1.45rem); margin: 0.35rem 0; }
+  .feature-card p { max-width: 68ch; }
+  .key-result { border-left: 2px solid var(--color-accent); padding-left: 0.8rem; }
+  .beyond-research > p { max-width: 68ch; }
+  @media (max-width: 700px) { .research-grid { grid-template-columns: 1fr; } }
 </style>
